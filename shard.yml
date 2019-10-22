@@ -1,0 +1,13 @@
+name: readline
+version: 0.1.0
+
+libraries:
+  readline: "*"
+
+authors:
+  - Brian J. Cardiff <bcardiff@manas.tech>
+  - Franciscello <ftarulla@manas.tech>
+
+crystal: 0.31.1
+
+license: MIT

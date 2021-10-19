@@ -1,6 +1,10 @@
 require "./spec_helper"
 
 describe Readline do
+  it ".version" do
+    Readline.version
+  end
+
   typeof(Readline.readline)
   typeof(Readline.readline("Hello", true))
   typeof(Readline.readline(prompt: "Hello"))

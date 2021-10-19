@@ -16,4 +16,6 @@ lib LibReadline
   $rl_line_buffer : UInt8*
   $rl_point : Int
   $rl_done : Int
+
+  $rl_library_version : LibC::Char*
 end

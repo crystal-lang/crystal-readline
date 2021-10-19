@@ -10,6 +10,10 @@ end
 module Readline
   VERSION = "0.1.0"
 
+  class_getter version do
+    String.new(LibReadline.rl_library_version)
+  end
+
   extend self
 
   alias CompletionProc = String -> Array(String)?

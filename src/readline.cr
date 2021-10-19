@@ -14,8 +14,6 @@ module Readline
     String.new(LibReadline.rl_library_version)
   end
 
-  extend self
-
   alias CompletionProc = String -> Array(String)?
 
   alias KeyBindingProc = Int32, Int32 -> Int32
@@ -28,7 +26,7 @@ module Readline
     end
   end
 
-  def readline(prompt = "", add_history = false)
+  def self.readline(prompt = "", add_history = false)
     line = LibReadline.readline(prompt)
     if line
       LibReadline.add_history(line) if add_history
@@ -38,21 +36,21 @@ module Readline
     end
   end
 
-  def autocomplete(&@@completion_proc : CompletionProc)
+  def self.autocomplete(&@@completion_proc : CompletionProc)
   end
 
-  def line_buffer
+  def self.line_buffer
     line = LibReadline.rl_line_buffer
     return nil unless line
 
     String.new(line)
   end
 
-  def point
+  def self.point
     LibReadline.rl_point
   end
 
-  def bind_key(c : Char, &f : KeyBindingProc)
+  def self.bind_key(c : Char, &f : KeyBindingProc)
     raise ArgumentError.new "Not a valid ASCII character: #{c.inspect}" unless c.ascii?
 
     handlers = (@@key_bind_handlers ||= {} of LibReadline::Int => KeyBindingProc)
@@ -62,7 +60,7 @@ module Readline
     raise ArgumentError.new "Invalid key: #{c.inspect}" unless res == 0
   end
 
-  def unbind_key(c : Char)
+  def self.unbind_key(c : Char)
     if (handlers = @@key_bind_handlers) && handlers[c.ord]?
       handlers.delete(c.ord)
       res = LibReadline.rl_unbind_key(c.ord).to_i32
@@ -72,16 +70,16 @@ module Readline
     end
   end
 
-  def done
+  def self.done
     LibReadline.rl_done != 0
   end
 
-  def done=(val : Bool)
+  def self.done=(val : Bool)
     LibReadline.rl_done = val.hash
   end
 
   # :nodoc:
-  def common_prefix_bytesize(str1 : String, str2 : String)
+  def self.common_prefix_bytesize(str1 : String, str2 : String)
     r1 = Char::Reader.new str1
     r2 = Char::Reader.new str2
 
@@ -96,7 +94,7 @@ module Readline
   end
 
   # :nodoc:
-  def common_prefix_bytesize(strings : Array)
+  def self.common_prefix_bytesize(strings : Array)
     str1 = strings[0]
     low = str1.bytesize
     1.upto(strings.size - 1).each do |i|

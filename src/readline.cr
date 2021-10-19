@@ -14,6 +14,28 @@ module Readline
     String.new(LibReadline.rl_library_version)
   end
 
+  class_getter input : IO::FileDescriptor = STDIN
+
+  def self.input=(io : IO::FileDescriptor)
+    @@input = io
+    file = LibReadline.fdopen(io.fd, "r")
+    if file.null?
+      raise IO::Error.from_errno "fdopen"
+    end
+    LibReadline.rl_instream = file
+  end
+
+  class_getter output : IO::FileDescriptor = STDIN
+
+  def self.output=(io : IO::FileDescriptor)
+    @@output = io
+    file = LibReadline.fdopen(io.fd, "w")
+    if file.null?
+      raise IO::Error.from_errno "fdopen"
+    end
+    LibReadline.rl_outstream = file
+  end
+
   alias CompletionProc = String -> Array(String)?
 
   alias KeyBindingProc = Int32, Int32 -> Int32

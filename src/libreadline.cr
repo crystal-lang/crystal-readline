@@ -18,4 +18,12 @@ lib LibReadline
   $rl_done : Int
 
   $rl_library_version : LibC::Char*
+
+  $rl_instream : FILE*
+  $rl_outstream : FILE*
+
+  # The following is defined in libc, but there are no bindings in stdlib and
+  # we don't want to pollute the global LibC namespace.
+  alias FILE = Void*
+  fun fdopen(fildes : Int, mode : LibC::Char*) : FILE*
 end

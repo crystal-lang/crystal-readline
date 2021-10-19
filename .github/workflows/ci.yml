@@ -11,16 +11,36 @@ on:
       # branches. Without this we would end up running this job twice for non
       # forked PRs, once for the push and then once for opening the PR.
       - "**:**"
+  schedule:
+    - cron: '0 6 * * 6'  # Every Saturday 6 AM
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            crystal: 1.0.0
+          - os: ubuntu-latest
+            crystal: 1.2.0
+          - os: ubuntu-latest
+          - os: ubuntu-latest
+            crystal: nightly
+          - os: macos-latest
+          - os: windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Download source
         uses: actions/checkout@v2
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: ${{ matrix.crystal }}
       - name: Install shards
         run: shards install
       - name: Run tests
         run: crystal spec --order=random
+      - name: Check formatting
+        run: crystal tool format --check
+        if: matrix.crystal == null && matrix.os == 'ubuntu-latest'

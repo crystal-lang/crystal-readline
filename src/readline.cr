@@ -7,6 +7,7 @@ lib LibReadline
 
   fun readline(prompt : UInt8*) : UInt8*
   fun add_history(line : UInt8*)
+  fun read_history(fname : UInt8*) : Int
   fun rl_bind_key(key : Int, f : Int, Int -> Int) : Int
   fun rl_unbind_key(key : Int) : Int
 

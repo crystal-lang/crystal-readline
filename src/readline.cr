@@ -10,6 +10,7 @@ lib LibReadline
   fun read_history(fname : UInt8*) : Int
   fun rl_bind_key(key : Int, f : Int, Int -> Int) : Int
   fun rl_unbind_key(key : Int) : Int
+  fun rl_get_screen_size(rows : Int*, cols : Int*) : Void
 
   alias CPP = (UInt8*, Int, Int) -> UInt8**
 
@@ -85,6 +86,13 @@ module Readline
     else
       raise KeyError.new "Key not bound: #{c.inspect}"
     end
+  end
+
+  def get_screen_size
+    row_ptr = Pointer(LibC::Int).malloc(1)
+    col_ptr = Pointer(LibC::Int).malloc(1)
+    LibReadline.rl_get_screen_size(row_ptr, col_ptr)
+    {row_ptr.value, col_ptr.value}
   end
 
   def done

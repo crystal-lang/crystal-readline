@@ -6,14 +6,17 @@ lib LibReadline
   alias Int = LibC::Int
 
   fun readline(prompt : UInt8*) : UInt8*
+  fun rl_insert_text(prompt : UInt8*) : UInt8*
   fun add_history(line : UInt8*)
   fun read_history(fname : UInt8*) : Int
   fun rl_bind_key(key : Int, f : Int, Int -> Int) : Int
   fun rl_unbind_key(key : Int) : Int
 
   alias CPP = (UInt8*, Int, Int) -> UInt8**
+  alias STARTUP_HOOK = -> Int32
 
   $rl_attempted_completion_function : CPP
+  $rl_startup_hook : STARTUP_HOOK
   $rl_line_buffer : UInt8*
   $rl_point : Int
   $rl_done : Int
@@ -27,13 +30,16 @@ private def malloc_match(match)
 end
 
 module Readline
-  VERSION = "0.1.0"
+  VERSION = "0.1.2"
 
   extend self
 
   alias CompletionProc = String -> Array(String)?
 
   alias KeyBindingProc = Int32, Int32 -> Int32
+
+  alias StartupHookProc = ->
+
   KeyBindingHandler = ->(count : LibReadline::Int, key : LibReadline::Int) do
     if (handlers = @@key_bind_handlers) && handlers[key.to_i32]?
       res = handlers[key].call(count.to_i32, key.to_i32)
@@ -43,7 +49,12 @@ module Readline
     end
   end
 
-  def readline(prompt = "", add_history = false)
+  def readline(prompt = "", add_history = false, initial_text = nil)
+    if initial_text
+      hook_startup do
+        LibReadline.rl_insert_text initial_text
+      end
+    end
     line = LibReadline.readline(prompt)
     if line
       LibReadline.add_history(line) if add_history
@@ -51,6 +62,9 @@ module Readline
     else
       nil
     end
+  end
+
+  def hook_startup(&@@startup_hook_proc : StartupHookProc)
   end
 
   def autocomplete(&@@completion_proc : CompletionProc)
@@ -150,5 +164,13 @@ module Readline
       result[0] = malloc_match(sub)
     end
     result
+  }
+
+  LibReadline.rl_startup_hook = ->{
+    startup_hook_proc = @@startup_hook_proc
+    return 0 unless startup_hook_proc
+    @@startup_hook_proc = nil
+    startup_hook_proc.call
+    return 0
   }
 end

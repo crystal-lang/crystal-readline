@@ -53,6 +53,11 @@ module Readline
     end
   end
 
+  def read_history(file_name : String | Path)
+    res = LibReadline.read_history(file_name.to_s).to_i32
+    raise Exception.new "Error reading history file: #{file_name}" unless res == 0
+  end
+
   def autocomplete(&@@completion_proc : CompletionProc)
   end
 

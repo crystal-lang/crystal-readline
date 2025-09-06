@@ -17,4 +17,11 @@ describe Readline do
     Readline.common_prefix_bytesize("operate", "open").should eq(3)
     Readline.common_prefix_bytesize(["operate", "open", "optional"]).should eq(2)
   end
+
+  it "reads history" do
+    Readline.read_history("#{__DIR__}/spec_helper.cr")
+    expect_raises(Exception) do
+      Readline.read_history("nonexistent")
+    end
+  end
 end
